@@ -16,6 +16,10 @@ builder.Services.AddDbContext<LearnDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("constring"));
 });
+
+// dependency registered here
+builder.Services.AddScoped<IproductRepo, ProductRepo>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

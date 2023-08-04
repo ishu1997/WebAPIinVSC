@@ -10,25 +10,25 @@ namespace WebAPIinVSC.Controllers;
 public class ProductController : ControllerBase
 {
 
-    public readonly LearnDbContext learnDbContext;
+    public IproductRepo _productRepo;
 
 
-    public ProductController(LearnDbContext _learnDbContext)
+    public ProductController(IproductRepo productRepo)
     {
-        this.learnDbContext = _learnDbContext;
+        _productRepo = productRepo;
     }
 
     [HttpGet("GetAllProducts")]
     public IActionResult Get()
     {
-        var products = this.learnDbContext.Products.ToList();
+        var products = _productRepo.GetAll();
         return Ok(products);
     }
 
     [HttpGet("GetById/{Id}")]
     public IActionResult Get(int Id)
     {
-        var products = this.learnDbContext.Products.FirstOrDefault(product => product.Id == Id);
+        var products = _productRepo.GetById(Id);
         if (products != null)
         {
             return Ok(products);
@@ -39,11 +39,8 @@ public class ProductController : ControllerBase
     [HttpDelete("Remove/{Id}")]
     public IActionResult Remove(int Id)
     {
-        var product = this.learnDbContext.Products.FirstOrDefault(product => product.Id == Id);
-        if (product != null)
+        if (_productRepo.RemoveById(Id))
         {
-            this.learnDbContext.Products.Remove(product);
-            this.learnDbContext.SaveChanges();
             return Ok(true);
         }
         return Ok(false);
@@ -52,11 +49,11 @@ public class ProductController : ControllerBase
     [HttpPost("Create")]
     public IActionResult Create([FromBody] Product product)
     {
-        var ExistingProduct = this.learnDbContext.Products.FirstOrDefault(exist => exist.Name == product.Name);
-        if (ExistingProduct == null)
+
+
+        if (_productRepo.CreateProduct(product))
         {
-            this.learnDbContext.Products.Add(product);
-            this.learnDbContext.SaveChanges();
+
             return Ok(true);
         }
         return Ok(false);
